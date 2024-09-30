@@ -89,7 +89,7 @@ void drawButtons() {
     int rows = 1;
     int columns = 3;
 
-    char* imagesPathsArray[] = {"./Brush.bmp", "RollerBrush.bmp", "./Arrow.bmp"};
+    char* imagesPathsArray[] = {"../img/Brush.bmp", "../img/RollerBrush.bmp", "../img/Arrow.bmp"};
     //int ArrayLength = rows + columns - 1;
 
     int offsetX = -5;
