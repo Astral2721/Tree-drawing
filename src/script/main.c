@@ -133,8 +133,7 @@ void drawButtons() {
 
 void init_game(){
     //mettre votre code d'initialisation ici
-    clear();
-    screenSurface = getWindowSurface();
+    //clear();
     drawTree();
     drawButtons();
     updateWindowSurface();
@@ -184,7 +183,6 @@ void recursiveColorWindow(int mousePosX, int mousePosY) {
     if (animBucket) {
         usleep(animBucketWaitTime);
     }
-    printf("%i-->\n", mousePosX);
 
     // Recursion
     if (mousePosX - sqSize > - sqSize) { // Left
@@ -222,10 +220,19 @@ void onClickPress(int mousePosX, int mousePosY){
             if (isMouseButtonDown) {
                 break;
             }
-            changeColor(rand() % 255, rand() % 255, rand() % 255);
+            int randR, randG, randB;
+            randR = rand() % 255;
+            randG = rand() % 255;
+            randB = rand() % 255;
+            changeColor(randR, randG, randB);
             recursiveColorWindow(mousePosX, mousePosY);
+            clear();
+            changeColor(randR, randG, randB);
+            drawRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            init_game();
             break;
     }
+
 }
 
 void onClickRelease() {
@@ -247,6 +254,15 @@ void drawGame(){
         onClickPress(mousePosX, mousePosY);
     }
     usleep(1000000 / FPS); // 60 images par seconde | 1000000 = 1 seconde
+}
+
+void getRandomColor() {
+    int randR, randG, randB;
+    randR = rand() % 255;
+    randG = rand() % 255;
+    randB = rand() % 255;
+    changeColor(randR, randG, randB);
+    drawRect(WINDOW_WIDTH - 35, WINDOW_HEIGHT - 15, 30, 10);
 }
 
 void KeyPressed(SDL_Keycode touche){
@@ -271,8 +287,12 @@ void KeyPressed(SDL_Keycode touche){
             break;
         case SDLK_r:
             // Reset drawing
-            printf("Reset drawing");
+            printf("R");
             init_game();
+            break;
+        case SDLK_c:
+            printf("C");
+            getRandomColor();
             break;
         case SDLK_ESCAPE:
             freeAndTerminate();
@@ -331,6 +351,8 @@ void gameLoop() {
 }
 
 int main(){
+    srand(time(NULL));
+
     /** @description 3 fonctions dans le main qui permettent de créer l'application et la maintenir ouverte :
      *  init(...) : initialiser la SDL/ fenêtre
      *  gameLoop() : boucle de jeu dans laquelle l'application reste ouverte
