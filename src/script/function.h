@@ -14,6 +14,10 @@ typedef struct Point {
 
 void init(int windowWidth, int windowHeight);
 
+SDL_Surface* getWindowSurface();
+
+void updateWindowSurface();
+
 void freeWindow();
 
 void freeRenderer();

@@ -12,6 +12,13 @@
 int x = 0;
 int y = 0;
 
+//
+int isMouseButtonDown = 0;
+int toolEquipped = 0;
+
+//
+SDL_Surface* screenSurface;
+
 // Draws the tree
 void drawTree() {
     // Initializing tree parameters
@@ -90,6 +97,7 @@ void drawButtons() {
     int columns = 3;
 
     char* imagesPathsArray[] = {"../img/Brush.bmp", "../img/RollerBrush.bmp", "../img/Arrow.bmp"};
+    char* keybinds[] = {"1", "2", "R"};
     //int ArrayLength = rows + columns - 1;
 
     int offsetX = -5;
@@ -115,7 +123,7 @@ void drawButtons() {
                 startPositionY + imageSize * (i - startPositionY) + (i - startPositionY) * imagesPaddingY,
                 imagesPathsArray[imageIndex]
                 );
-                // ADD TEXT & KEYBINDS HERE
+                //TODO: ADD TEXT & KEYBINDS HERE
                 imageIndex++;
             }
         }
@@ -126,8 +134,102 @@ void drawButtons() {
 void init_game(){
     //mettre votre code d'initialisation ici
     clear();
+    screenSurface = getWindowSurface();
     drawTree();
     drawButtons();
+    updateWindowSurface();
+}
+
+
+/* Functions for recursiveColorWindow */
+// Keep track of visited positions
+#define MAX_VISITS 100000
+
+int visited[MAX_VISITS][2]; // Array to store visited positions
+int visit_count = 0;
+
+// Function to check if the position has been visited
+int isVisited(int x, int y) {
+    for (int i = 0; i < visit_count; i++) {
+        if (visited[i][0] == x && visited[i][1] == y) {
+            return 1; // Visited
+        }
+    }
+    return 0; // Not visited
+}
+
+// Function to mark a position as visited
+void markVisited(int x, int y) {
+    visited[visit_count][0] = x;
+    visited[visit_count][1] = y;
+    visit_count++;
+}
+
+void recursiveColorWindow(int mousePosX, int mousePosY) {
+    int animBucket = 1;
+    int sqSize = 25;
+    int animBucketWaitTime = 2000; // In µs
+
+    // Check if the position has been visited
+    if (isVisited(mousePosX, mousePosY)) {
+        return; // Stop recursion for visited positions
+    }
+
+    // Mark the current position as visited
+    markVisited(mousePosX, mousePosY);
+
+    // Draw the current square
+    drawSquare(mousePosX, mousePosY, sqSize);
+    actualize();
+    if (animBucket) {
+        usleep(animBucketWaitTime);
+    }
+    printf("%i-->\n", mousePosX);
+
+    // Recursion
+    if (mousePosX - sqSize > - sqSize) { // Left
+        recursiveColorWindow(mousePosX - sqSize, mousePosY);
+    }
+    if (mousePosY - sqSize > - sqSize) { // Up
+        recursiveColorWindow(mousePosX, mousePosY - sqSize);
+    }
+    if (mousePosX + sqSize < WINDOW_WIDTH) { // Right
+        recursiveColorWindow(mousePosX + sqSize, mousePosY);
+    }
+    if (mousePosY + sqSize < WINDOW_HEIGHT) { // Down
+        recursiveColorWindow(mousePosX, mousePosY + sqSize);
+    }
+}
+
+
+
+void colorSquare(int mousePosX, int mousePosY) {
+    int drawSize = 5;
+    isMouseButtonDown = 1;
+
+    changeColor(rand() % 255, rand() % 255, rand() % 255);
+    drawSquare(mousePosX, mousePosY, drawSize);
+}
+void onClickPress(int mousePosX, int mousePosY){
+
+    switch (toolEquipped) {
+        case 0:
+            break;
+        case 1:
+            colorSquare(mousePosX, mousePosY);
+            break;
+        case 2:
+            if (isMouseButtonDown) {
+                break;
+            }
+            changeColor(rand() % 255, rand() % 255, rand() % 255);
+            recursiveColorWindow(mousePosX, mousePosY);
+            break;
+    }
+}
+
+void onClickRelease() {
+    isMouseButtonDown = 0;
 }
 
 void drawGame(){
@@ -139,11 +241,12 @@ void drawGame(){
     //changeColor(255,255,0);
     //drawCircle(100,100,100);
     actualize();
+    if (isMouseButtonDown) {
+        int mousePosX, mousePosY;
+        SDL_GetMouseState(&mousePosX, &mousePosY);
+        onClickPress(mousePosX, mousePosY);
+    }
     usleep(1000000 / FPS); // 60 images par seconde | 1000000 = 1 seconde
-}
-
-void onClick(int mousePosX, int mousePosY){
-
 }
 
 void KeyPressed(SDL_Keycode touche){
@@ -153,9 +256,18 @@ void KeyPressed(SDL_Keycode touche){
     switch (touche) {
         // Voir doc SDL_Keycode pour plus de touches https://wiki.libsdl.org/SDL_Keycode
         // ici exemple ou appuyer sur les touches Q | D modifie x (position du carré dans drawGame())
+        case SDLK_0:
+            printf("0");
+            toolEquipped = 0;
+            break;
         case SDLK_1:
             //touche 1 appuyé
             printf("1");
+            toolEquipped = 1;
+            break;
+        case SDLK_2:
+            printf("2");
+            toolEquipped = 2;
             break;
         case SDLK_r:
             // Reset drawing
@@ -192,13 +304,15 @@ void gameLoop() {
                     // quand on clique sur fermer la fénêtre en haut à droite
                     programLaunched = 0;
                     break;
-                case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEBUTTONDOWN:
                     /* clique de la souris
                      * event.motion.y | event.motion.x pour les positions de la souris
                      */
-                    onClick(event.motion.x, event.motion.y);
+                    onClickPress(event.motion.x, event.motion.y);
                     printf("position de la souris x : %d , y : %d\n", event.motion.x, event.motion.y);
                     break;
+                case SDL_MOUSEBUTTONUP:
+                    onClickRelease();
                 case SDL_KEYDOWN:
                     KeyPressed(event.key.keysym.sym);
                     break;

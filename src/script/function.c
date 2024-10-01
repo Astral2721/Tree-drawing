@@ -10,6 +10,7 @@ static SDL_Renderer *renderer = NULL;
 static int window_width = 0;
 static int window_height = 0;
 static char* name = "SDL app";
+static SDL_Surface* windowSurface = NULL;
 
 void out(){
     printf("Vous dessinez en dehors de la fenetre\n");
@@ -56,7 +57,16 @@ void init(int windowWidth, int windowHeight) {
         SDL_Log("ERREUR : Init window and renderer > %s\nParametres passes %d , %d\n",SDL_GetError(), windowWidth, windowHeight);
         freeAndTerminate();
     }
+    windowSurface = SDL_GetWindowSurface(window);
     SDL_SetWindowTitle(window, "L'arbre à décorer DIY!");
+}
+
+SDL_Surface* getWindowSurface() {
+    return SDL_GetWindowSurface(window);
+}
+
+void updateWindowSurface() {
+    SDL_UpdateWindowSurface(window);
 }
 
 void freeWindow() {
