@@ -19,6 +19,11 @@ int toolEquipped = 0;
 //
 SDL_Surface* screenSurface;
 
+//
+int setColorR = 0;
+int setColorG = 0;
+int setColorB = 0;
+
 // Draws the tree
 void drawTree() {
     // Initializing tree parameters
@@ -93,8 +98,9 @@ void drawTree() {
 // Draws the buttons
 void drawButtons() {
     // Init buttons parameters
-    int rows = 1;
-    int columns = 3;
+    //NOTE: BUTTONS ARE DEPRACATED.
+    int rows = 0;
+    int columns = 0;
 
     char* imagesPathsArray[] = {"../img/Brush.bmp", "../img/RollerBrush.bmp", "../img/Arrow.bmp"};
     char* keybinds[] = {"1", "2", "R"};
@@ -205,9 +211,11 @@ void colorSquare(int mousePosX, int mousePosY) {
     int drawSize = 5;
     isMouseButtonDown = 1;
 
-    changeColor(rand() % 255, rand() % 255, rand() % 255);
+    changeColor(setColorR, setColorG, setColorB);
     drawSquare(mousePosX, mousePosY, drawSize);
 }
+
+
 void onClickPress(int mousePosX, int mousePosY){
 
     switch (toolEquipped) {
@@ -220,14 +228,10 @@ void onClickPress(int mousePosX, int mousePosY){
             if (isMouseButtonDown) {
                 break;
             }
-            int randR, randG, randB;
-            randR = rand() % 255;
-            randG = rand() % 255;
-            randB = rand() % 255;
-            changeColor(randR, randG, randB);
+            changeColor(setColorR, setColorG, setColorB);
             recursiveColorWindow(mousePosX, mousePosY);
             clear();
-            changeColor(randR, randG, randB);
+            changeColor(setColorR, setColorG, setColorB);
             drawRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
             init_game();
             break;
@@ -257,11 +261,10 @@ void drawGame(){
 }
 
 void getRandomColor() {
-    int randR, randG, randB;
-    randR = rand() % 255;
-    randG = rand() % 255;
-    randB = rand() % 255;
-    changeColor(randR, randG, randB);
+    setColorR = rand() % 255;
+    setColorG = rand() % 255;
+    setColorB = rand() % 255;
+    changeColor(setColorR, setColorG, setColorB);
     drawRect(WINDOW_WIDTH - 35, WINDOW_HEIGHT - 15, 30, 10);
 }
 
