@@ -1,3 +1,5 @@
+// Compilation command: gcc main.c function.c -o main.out -lSDL2 -lSDL2main
+
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <time.h>
